@@ -44,7 +44,7 @@ ATCAI2CMaster_t *i2c_hal_data[MAX_I2C_BUSES];
 int i2c_bus_ref_ct = 0;
 i2c_config_t conf;
 
-const char* TAG = "HAL_I2C";
+const char* TAG = "ATECC608A_HAL_I2C";
 
 void hal_i2c_change_baud(ATCAIface iface, uint32_t speed)
 {
@@ -56,11 +56,11 @@ void hal_i2c_change_baud(ATCAIface iface, uint32_t speed)
     rc = i2c_param_config(i2c_hal_data[bus]->id, &conf);
     if (rc == ESP_OK)
     {
-//        ESP_LOGD(TAG, "Baudrate Changed");
+        ESP_LOGD(TAG, "Baudrate Changed");
     }
     else
     {
-//        ESP_LOGW(TAG, "Baudrate Change Failed");
+        ESP_LOGW(TAG, "Baudrate Change Failed");
     }
 }
 
@@ -103,11 +103,11 @@ ATCA_STATUS hal_i2c_init(void *hal, ATCAIfaceCfg *cfg)
             conf.sda_pullup_en = GPIO_PULLUP_DISABLE;
             conf.scl_pullup_en = GPIO_PULLUP_DISABLE;
             conf.master.clk_speed = 100000; //cfg->atcai2c.baud;
-//            ESP_LOGI(TAG, "Configuring I2C");
+            ESP_LOGI(TAG, "Configuring I2C");
             rc = i2c_param_config(i2c_hal_data[bus]->id, &conf);
-//            ESP_LOGD(TAG, "I2C Param Config: %s", esp_err_to_name(rc));
+            ESP_LOGD(TAG, "I2C Param Config: %s", esp_err_to_name(rc));
             rc = i2c_driver_install(i2c_hal_data[bus]->id, I2C_MODE_MASTER, 0, 0, 0);
-//            ESP_LOGD(TAG, "I2C Driver Install; %s", esp_err_to_name(rc));
+            ESP_LOGD(TAG, "I2C Driver Install; %s", esp_err_to_name(rc));
             i2c_hal_data[bus]->bus_index = bus;
         }
         else
@@ -119,7 +119,7 @@ ATCA_STATUS hal_i2c_init(void *hal, ATCAIfaceCfg *cfg)
 
         return ATCA_SUCCESS;
     }
-//    ESP_LOGE(TAG, "I2C init failed");
+    ESP_LOGE(TAG, "I2C init failed");
     return ATCA_COMM_FAIL;
 }
 
@@ -135,8 +135,8 @@ ATCA_STATUS hal_i2c_send(ATCAIface iface, uint8_t *txdata, int txlength)
 
     txdata[0] = 0x03;              //Word Address value, Command Token as per datasheet of ATECC508A
     txlength++;
-//    ESP_LOGD(TAG, "txdata: %p , txlength: %d", txdata, txlength);
-//    ESP_LOG_BUFFER_HEXDUMP(TAG, txdata, txlength, 3);
+    ESP_LOGD(TAG, "txdata: %p , txlength: %d", txdata, txlength);
+    ESP_LOG_BUFFER_HEXDUMP(TAG, txdata, txlength, 3);
 
     i2c_cmd_handle_t cmd = i2c_cmd_link_create();
     (void)i2c_master_start(cmd);
@@ -198,7 +198,7 @@ ATCA_STATUS hal_i2c_receive(ATCAIface iface, uint8_t *rxdata, uint16_t *rxlength
         (void)i2c_cmd_link_delete(cmd);
     }
 
-//    ESP_LOG_BUFFER_HEX(TAG, rxdata, *rxlength);
+    ESP_LOG_BUFFER_HEX(TAG, rxdata, *rxlength);
 
     if (ESP_OK != rc)
     {
@@ -256,10 +256,10 @@ ATCA_STATUS hal_i2c_wake(ATCAIface iface)
     hal_i2c_receive(iface, data, &rxlen);
     if (memcmp(data, expected, 4) == 0)
     {
-//        ESP_LOGI(TAG, "I2C wake successful");
+        ESP_LOGI(TAG, "I2C wake successful");
         return ATCA_SUCCESS;
     }
-//    ESP_LOGW(TAG, "I2C wake failed");
+    ESP_LOGW(TAG, "I2C wake failed");
     return ATCA_COMM_FAIL;
 }
 
@@ -275,7 +275,7 @@ ATCA_STATUS hal_i2c_idle(ATCAIface iface)
     (void)i2c_master_stop(cmd);
     (void)i2c_master_cmd_begin(cfg->atcai2c.bus, cmd, 10);
     (void)i2c_cmd_link_delete(cmd);
-//    ESP_LOGI(TAG, "IDLE Command Sent");
+    ESP_LOGI(TAG, "IDLE Command Sent");
     return ATCA_SUCCESS;
 }
 
@@ -292,7 +292,7 @@ ATCA_STATUS hal_i2c_sleep(ATCAIface iface)
     (void)i2c_master_stop(cmd);
     (void)i2c_master_cmd_begin(cfg->atcai2c.bus, cmd, 10);
     (void)i2c_cmd_link_delete(cmd);
-//    ESP_LOGI(TAG, "hal_i2c_sleep");
+    ESP_LOGI(TAG, "hal_i2c_sleep");
 
     return ATCA_SUCCESS;
 }
