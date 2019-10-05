@@ -69,11 +69,6 @@ void CL_hashUpdate(CL_HashContext *ctx, const U8 *src, int nbytes)
     U8 i, freeBytes;
     U32 temp32;
 
-    typedef struct
-    {
-        U8 buf[64];
-    } Buf64;
-
     // We are counting on the fact that Buf64 is 64 bytes long.  In
     // principle the compiler may make Buf64 bigger 64 bytes, but this
     // seems unlikely.  Add an assertion check to be sure.  Beware that
@@ -97,16 +92,7 @@ void CL_hashUpdate(CL_HashContext *ctx, const U8 *src, int nbytes)
         }
 
         // Copy src bytes to buf
-        if (i == 64)
-        {
-            // This seems to be much faster on IAR than memcpy().
-            *(Buf64*)(ctx->buf) = *(Buf64*)src;
-        }
-        else
-        {
-            // Have to use memcpy, size is other than 64 bytes.
-            memcpy(((U8*)ctx->buf) + 64 - freeBytes, src, i);
-        }
+        memcpy(((U8*)ctx->buf) + 64 - freeBytes, src, i);
 
         // Adjust for transferred bytes
         src += i;
